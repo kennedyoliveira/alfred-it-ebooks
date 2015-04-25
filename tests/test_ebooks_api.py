@@ -12,6 +12,7 @@ from workflow import Workflow
 class TestEbooksAPI(unittest.TestCase):
     def setUp(self):
         self.wf = Workflow()
+        self.wf.reset()
         itebooks.log = self.wf.logger
         itebooks.wf = self.wf
 
@@ -47,6 +48,18 @@ class TestEbooksAPI(unittest.TestCase):
 
         self.assertIsNotNone(search_result)
         self.assertEqual(len(search_result), 30, 'Wrong fetched result')
+
+    def test_fetch_few_results(self):
+        ebooks_generator = itebooks.search_ebooks('Elastic Search', 30, self.wf)
+
+        search_result = []
+
+        for ebooks in ebooks_generator:
+            search_result.extend(ebooks)
+
+        self.assertIsNotNone(search_result)
+        self.assertLess(len(search_result), 10, 'Wrong fetched results')
+        self.assertGreater(len(search_result), 0, 'Wrong fetched results')
 
     def test_get_ebook_info(self):
         ebook_info = itebooks.get_ebook_info(1529159300)

@@ -69,7 +69,7 @@ def search_ebooks(query, total_results, wf):
     :type wf: Workflow
     """
     if total_results is None or total_results < 0:
-        raise StopIteration()
+        return
 
     for page in range(1, (total_results / 10) + 1):
         def search_wrapper():
@@ -80,10 +80,13 @@ def search_ebooks(query, total_results, wf):
         except SearchException:
             break
 
+        if 'Books' not in json:
+            return
+
+        yield json['Books']
+
         # Means there are more pages
-        if json and int(json['Total']) > 10:
-            yield json['Books']
-        else:
+        if json and int(json['Total']) <= 10:
             break
 
 
@@ -225,8 +228,8 @@ def main(wf):
 
         for ebooks_id, download in downloads.iteritems():
             wf.add_item(download['title'], 'Status: {}'.format(download['status']))
-        wf.send_feedback()
 
+        wf.send_feedback()
         return 0
 
     ##########################################################################################
@@ -243,7 +246,7 @@ def main(wf):
     # Search for the books
     ##########################################################################################
     if args.query:
-        query = args.query[0]
+        query = ' '.join(args.query)
 
         ebook_generator = search_ebooks(query, ebooks_per_search, wf)
 
@@ -258,14 +261,16 @@ def main(wf):
                 book_id = str(ebook['ID'])
 
                 wf.add_item(title, subtitle, uid=isbn, arg=book_id, valid=True)
-        wf.send_feedback()
 
         if ebooks_found == 0:
             wf.add_item('No books found for the query: {}'.format(query), icon=ICON_WARNING)
             wf.send_feedback()
             return 1
 
+        wf.send_feedback()
+
         log.debug("End of it-ebooks")
+        return 0
     else:
         wf.add_item('Invalid args...', icon=ICON_ERROR)
         wf.send_feedback()

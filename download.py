@@ -13,7 +13,6 @@ import sys
 
 import itebooks
 from itebooks import STORED_DOWNLOADING_BOOKS
-
 from workflow import Workflow, web
 
 

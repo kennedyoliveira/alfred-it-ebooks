@@ -224,7 +224,7 @@ def main(wf):
         if not downloads:
             wf.add_item('No downloads running at moment.')
             wf.send_feedback()
-            return 0
+            return 1
 
         for ebooks_id, download in downloads.iteritems():
             wf.add_item(download['title'], 'Status: {}'.format(download['status']))

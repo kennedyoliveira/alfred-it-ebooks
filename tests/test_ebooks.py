@@ -16,8 +16,12 @@ import itebooks
 class TestEbook(unittest.TestCase):
     def setUp(self):
         self.wf = Workflow()
-        self.wf.reset()
+        # self.wf.reset()
         itebooks.log = self.wf.logger
+
+    def tearDown(self):
+        # self.wf.reset()
+        pass
 
     def test_copy_download_link(self):
         with patch.object(sys, 'argv', 'program --copy-download-link 1529159300'.split()):
@@ -81,3 +85,13 @@ class TestEbook(unittest.TestCase):
 
         self.assertEqual(ret, 0)
         self.assertEqual(len(ret_items), 5)
+
+    def test_show_download_progress_no_results(self):
+        with patch.object(sys, 'argv', 'program --status-download'.split()):
+            ret = itebooks.main(self.wf)
+
+        ret_items = self.wf._items
+
+        self.assertEqual(ret, 1)
+        self.assertEqual(len(ret_items), 1)
+        self.assertEqual(ret_items[0].title, 'No downloads running at moment.')

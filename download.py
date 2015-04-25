@@ -28,7 +28,7 @@ def main(wf):
     parser = argparse.ArgumentParser()
     parser.add_argument('--download-from-itebooks', nargs='?', dest='download_itebook')
     parser.add_argument('book_id', nargs='?')
-    parser.add_argument('book_title', nargs='?')
+    parser.add_argument('book_title', nargs='*')
 
     args = parser.parse_args(wf.args)
 
@@ -41,7 +41,7 @@ def main(wf):
             downloading_books = {}
 
         downloading_books[args.book_id] = {'status': 'DOWNLOADING',
-                                           'title': args.book_title,
+                                           'title': ' '.join(args.book_title),
                                            'book_id': args.book_id}
 
         wf.store_data(STORED_DOWNLOADING_BOOKS, downloading_books)
@@ -61,15 +61,22 @@ def main(wf):
 
             index = resp.headers['content-disposition'].find('filename=') + 9
 
+            download_folder = os.path.expanduser(itebooks.default_download_folder)
+
+            if not os.path.exists(download_folder):
+                os.makedirs(download_folder)
+
             file_name = attachment[index:].replace('"', '')
 
-            file_path = os.path.expanduser(os.path.join(itebooks.default_download_folder, file_name))
+            file_path = os.path.join(download_folder, file_name)
 
             with open(file_path, mode='wb') as output:
                 itebooks.notify('Starting download of {}'.format(file_name))
                 output.write(resp.content)
 
             itebooks.notify('Download of {} complete!'.format(file_name))
+        except:
+            return 1
         finally:
             # Update the data for downloading books
             downloading_books[args.book_id]['status'] = 'FINISHED'

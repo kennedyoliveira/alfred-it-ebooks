@@ -16,12 +16,11 @@ import itebooks
 class TestEbook(unittest.TestCase):
     def setUp(self):
         self.wf = Workflow()
-        # self.wf.reset()
+        self.wf.reset()
         itebooks.log = self.wf.logger
 
     def tearDown(self):
-        # self.wf.reset()
-        pass
+        self.wf.reset()
 
     def test_copy_download_link(self):
         with patch.object(sys, 'argv', 'program --copy-download-link 1529159300'.split()):

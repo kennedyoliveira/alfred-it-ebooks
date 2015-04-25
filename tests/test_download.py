@@ -21,6 +21,9 @@ class TestDownload(unittest.TestCase):
         self.wf.reset()
         download.log = self.wf.logger
 
+    def tearDown(self):
+        self.wf.reset()
+
     def test_download(self):
         download_link = 'http://filepi.com/i/RSpHA1T'
         ebook_id = '1529159300'
@@ -39,3 +42,10 @@ class TestDownload(unittest.TestCase):
 
         self.assertEqual(ret, 0)
         self.assertTrue(os.path.exists(file_path))
+
+        # Removes the downloaded file
+
+        try:
+            os.remove(file_path)
+        except OSError:
+            pass
